@@ -1,26 +1,10 @@
 #include <stdio.h>
-
-// 数据结构声明
-    
-// 单条开销
-typedef struct singleCost {
-    double money;  // 金额
-    char use[50];  // 用途
-}COST;
-
-// 每日开销
-typedef struct dayExpense {
-    char date[20];  // yyyy-mm-dd
-    COST date_cost[50];  // 预设50条开销记录，
-}EXPENSE;
+#include <string.h>
 
 // 函数声明
 void showMain();            // 主界面函数
-void addCost(char date[20], double money, char use[50]);
-void checkCost(char date[20], int type);
-
-// 变量声明
-
+void addCost(char date[20], double money, char use[50]);  // 增加开销记录
+void checkCost(char date[20], int type);  // 查看开销
 
 int main() {
     showMain();
@@ -49,7 +33,7 @@ void showMain() {
                     scanf("%lf", &money);
 
                     printf("请输入您此项开销的用途:");
-                    scanf("%s", use);
+                    scanf("%s", use);   // 后续优化为fgets
                     
                     // 将开销记录添加到文件中
                     addCost(date, money, use);
@@ -92,15 +76,70 @@ void showMain() {
 
 }
 
-void readFile(FILE* fp) {
-
-}
-
-
 void addCost(char date[20], double money, char use[50]) {
+    FILE* fp = fopen("data.csv", "a");
+    if (fp == NULL) {
+        printf("\n无法打开文件\n");
+        return ;
+    }
 
+    fprintf(fp, "%s,%.2lf,%s\n",date,money,use);
+    fclose(fp);
 }
 
 void checkCost(char date[20], int type) {
+        FILE* fp = fopen("data.csv", "r");
+        if (fp == NULL) {
+            printf("\n无法打开文件\n");
+            return ;
+        }
 
+        char line[200];
+        
+        // 跳过第一行
+        if (fgets(line, sizeof(line), fp) == NULL) {
+            fclose(fp);
+            return ;
+        }
+
+        // 总金额
+        double total = 0;
+
+        // 逐行读取文件内容
+        while (fgets(line, sizeof(line), fp) != NULL) {
+            char rec_date[20];
+            double rec_money;
+            char rec_use[50];
+
+            if (sscanf(line, "%19[^,],%lf,%49[^\n]", rec_date, &rec_money, rec_use) == 3) {
+                //按月份查询
+                if (type == 1) {
+                    if (strncmp(rec_date, date, strlen(date)) == 0) total += rec_money;
+                    else continue;
+                }
+
+                // 按特定日期查询
+                else if (type == 2) {
+                    if (strcmp(rec_date, date) == 0) total += rec_money;
+                    else continue; 
+                } 
+                
+                // 输入其他数字
+                else {
+                    printf("\n功能正在开发中...\n");
+                    break;
+                }
+            }
+
+        }
+
+        // 关闭文件
+        fclose(fp);
+
+        if (type == 1) {
+            printf("\n%s月的开销为:%.2lf\n",date, total);
+        }
+        else if (type == 2) {
+            printf("\n%s日的开销为:%.2lf\n",date, total);
+        }
 }
