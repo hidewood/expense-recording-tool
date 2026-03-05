@@ -57,10 +57,12 @@ void showMain() {
                     scanf("%s", date);
                     checkCost(date, type);
 
-                } else {
+                } else if(type == 2){
                     printf("\n请输入您所要查询的日期:");
                     scanf("%s", date);
                     checkCost(date, type);
+                } else {
+                    printf("\n功能正在开发中...\n");
                 }
                 break;
             }
@@ -124,11 +126,6 @@ void checkCost(char date[20], int type) {
                     else continue; 
                 } 
                 
-                // 输入其他数字
-                else {
-                    printf("\n功能正在开发中...\n");
-                    break;
-                }
             }
 
         }
